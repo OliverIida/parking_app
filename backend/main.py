@@ -1,59 +1,99 @@
 import time
 import math
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
-def check_car_number(car_number):
-    if len(car_number) != 6:
+app = Flask(__name__)
+CORS(app)
+
+planes = []
+planes_with_start_time = {}
+
+
+def check_plane_number(plane_number):
+    if len(plane_number) != 6:
         return False
-    if not car_number[:3].isdigit():
+    if not plane_number[:3].isdigit():
         return False
-    if not car_number[3:].isalpha():
+    if not plane_number[3:].isalpha():
         return False
     return True
 
 
-def current_cars():
-    print(f"Currently we have {len(cars)} cars parking. They are: {cars}")
-    print(f"Cars with their starting times: {cars_with_start_time}")
-
-
-def actions_input(owner_action, car_number):
+def actions_input(owner_action, plane_number):
     if owner_action == "time":
-        print(f"The car {car_number} has been parked for {math.ceil(time.time() - cars_with_start_time[car_number])} seconds.\n")
+        return f"The plane {plane_number} has been parked for {math.ceil(time.time() - planes_with_start_time[plane_number])} seconds.\n"
     elif owner_action == "end":
-        print(f"{car_number} parked for a total of {math.ceil(time.time() - cars_with_start_time[car_number])} seconds.\n")
-        del cars_with_start_time[car_number]
-        cars.remove(car_number)
+        parked_time = math.ceil(time.time() - planes_with_start_time[plane_number])
+        del planes_with_start_time[plane_number]
+        planes.remove(plane_number)
+        return f"{plane_number} parked for a total of {parked_time} seconds.\n"
     else:
-        print("Wrong input!\n")
+        return "Wrong input!\n"
 
 
-def getting_owner_action(car_number):
-        if car_number in cars:
-            print("Type 'Time' to see how long the car has been parked for")
-            print("Type 'End' to stop parking")
-            owner_action = input("Select action: ")
-            owner_action = owner_action.lower()
-            return owner_action
-        elif car_number not in cars:
-            cars.append(car_number)
-            cars_with_start_time[car_number] = time.time()
-            print(f"Car {car_number} parked!\n")
-            return None
+@app.route('/park', methods=['POST'])
+def park_plane():
+    data = request.get_json()
+    plane_number = data.get('plane_number', '').upper()
+    
+    if not check_plane_number(plane_number):
+        return jsonify({
+            'message': "NB! The plane number must be in the following format: 123ABC\n",
+            'status': 'error'
+        }), 200
+    
+    # Check if plane already exists
+    if plane_number in planes:
+        return jsonify({
+            'message': "Type 'Time' to see how long the plane has been parked for\nType 'End' to stop parking",
+            'status': 'exists',
+            'plane_number': plane_number
+        }), 200
+    
+    # Check if parking lot is full
+    if len(planes) >= 8:
+        return jsonify({
+            'message': "Parking lot is full! Maximum capacity is 8 planes.\n",
+            'status': 'error'
+        }), 200
+    
+    # Park the plane
+    planes.append(plane_number)
+    planes_with_start_time[plane_number] = time.time()
+    return jsonify({
+        'message': f"Plane {plane_number} parked!\n",
+        'status': 'parked'
+    }), 200
 
 
-cars = []
-cars_with_start_time = {}
+@app.route('/action', methods=['POST'])
+def handle_action():
+    data = request.get_json()
+    owner_action = data.get('action', '').lower()
+    plane_number = data.get('plane_number', '').upper()
+    
+    if plane_number not in planes:
+        return jsonify({
+            'message': "Plane not found!",
+            'status': 'error'
+        }), 200
+    
+    message = actions_input(owner_action, plane_number)
+    return jsonify({
+        'message': message,
+        'status': 'success',
+        'ended': owner_action == 'end'
+    }), 200
 
 
-while True:
-    car_number = input("Enter your car number: ")
-    if check_car_number(car_number):
-        owner_action = getting_owner_action(car_number)
-        if owner_action == "time" or owner_action == "end":
-            actions_input(owner_action, car_number)
-        elif owner_action == None:
-            continue
-    else:
-        print("NB! The car number must be in the following format: 123ABC\n")
-        continue
+@app.route('/planes', methods=['GET'])
+def get_planes():
+    return jsonify({
+        'planes': planes
+    }), 200
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
 

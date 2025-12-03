@@ -4,14 +4,14 @@
 
 ### Backend
 ```bash
-cd backend
-python main.py
+   cd parking_app/backend
+   pip install -r requirements.txt
+   python main.py // python3 main.py
 ```
 
 ### Frontend
 ```bash
-cd frontend
-npm install
-npm run dev
+   cd parking_app/frontend
+   npm run dev
 ```
 
