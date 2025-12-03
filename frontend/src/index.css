@@ -252,7 +252,8 @@
 
   body {
 
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: #2a2a2a;
 
   }
 
