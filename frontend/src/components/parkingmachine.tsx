@@ -97,8 +97,8 @@ export function ParkingMachine() {
     <div className="w-96 rounded-2xl overflow-hidden">
       {/* Screen - Top Part */}
       <div className="bg-gradient-to-b from-gray-800 to-gray-700 p-6 border-b-4 border-gray-600 rounded-b-2xl">
-        <div className="bg-green-950 rounded-lg p-6 min-h-[200px] border-2 border-gray-600">
-          <div className="text-green-400 space-y-4 font-mono">
+        <div className="bg-green-950 rounded-lg p-6 h-[250px] border-2 border-gray-600 flex flex-col">
+          <div className="text-green-400 space-y-4 font-mono flex-1 flex flex-col">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Plane className="w-5 h-5" />
@@ -110,9 +110,9 @@ export function ParkingMachine() {
               </div>
             </div>
             
-            <div className="border-t border-green-800 pt-4">
-              <div className="mt-4">
-                <div className="whitespace-pre-line min-h-[60px]">{message}</div>
+            <div className="border-t border-green-800 pt-4 flex-1 flex flex-col">
+              <div className="mt-4 flex-1 flex flex-col">
+                <div className="whitespace-pre-line h-[90px] overflow-y-auto">{message}</div>
                 <form onSubmit={handlePlaneNumberSubmit} className="mt-2">
                   <input
                     type="text"
