@@ -12,6 +12,8 @@ interface PlanePosition {
   x: number;
   y: number;
   color: string;
+  isDeparting?: boolean;
+  isArriving?: boolean;
 }
 
 const PLANE_COLORS = ['#0e37cc', '#dc2626', '#cc990e', '#18cc0e']; // blue, red, yellow, green
@@ -82,10 +84,15 @@ function App() {
           plane => !currentPlanes.includes(plane)
         );
         
-        // Update parked planes: remove departed ones and add new ones
+        // Update parked planes: mark departing ones and add new ones
         setParkedPlanes(prev => {
-          // Remove planes that are no longer parking
-          let updated = prev.filter(p => !removedPlanes.includes(p.planeNumber));
+          // Mark planes as departing instead of immediately removing them
+          let updated = prev.map(p => {
+            if (removedPlanes.includes(p.planeNumber) && !p.isDeparting) {
+              return { ...p, isDeparting: true };
+            }
+            return p;
+          });
           
           // Get currently occupied spot indices
           const occupiedSpots = updated.map(p => p.spotIndex);
@@ -103,7 +110,8 @@ function App() {
                 spotIndex: randomSpotIndex,
                 x: position.x,
                 y: position.y,
-                color: randomColor
+                color: randomColor,
+                isArriving: true
               });
               occupiedSpots.push(randomSpotIndex);
             }
@@ -127,13 +135,35 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Remove departing planes after animation completes (2 seconds)
+  useEffect(() => {
+    const departingPlanes = parkedPlanes.filter(p => p.isDeparting);
+    if (departingPlanes.length > 0) {
+      const timeout = setTimeout(() => {
+        setParkedPlanes(prev => prev.filter(p => !p.isDeparting));
+      }, 2000); // Match animation duration
+      return () => clearTimeout(timeout);
+    }
+  }, [parkedPlanes]);
+
+  // Remove arriving flag after animation completes (2 seconds)
+  useEffect(() => {
+    const arrivingPlanes = parkedPlanes.filter(p => p.isArriving);
+    if (arrivingPlanes.length > 0) {
+      const timeout = setTimeout(() => {
+        setParkedPlanes(prev => prev.map(p => p.isArriving ? { ...p, isArriving: false } : p));
+      }, 2000); // Match animation duration
+      return () => clearTimeout(timeout);
+    }
+  }, [parkedPlanes]);
+
   return (
     <div className="w-full min-h-screen flex flex-col items-center pt-8 pb-8">
       <div className="flex gap-8">
         <ParkingMachine />
         <PlaneList />
       </div>
-      <div className="mt-108 mb-108 flex items-center justify-center">
+      <div className="mt-78 mb-108 flex items-center justify-center">
         <div className="relative w-[1200px] h-[700px]">
           <Lines />
           {/* Render planes at their positions */}
@@ -145,6 +175,9 @@ function App() {
               planeNumber={plane.planeNumber}
               isUpsideDown={plane.spotIndex < 4} // Top row (0-3) should be upside down
               color={plane.color}
+              isDeparting={plane.isDeparting}
+              isArriving={plane.isArriving}
+              isTopRow={plane.spotIndex < 4}
             />
           ))}
         </div>

@@ -4,12 +4,23 @@ interface PlaneProps {
   planeNumber?: string;
   isUpsideDown?: boolean;
   color?: string;
+  isDeparting?: boolean;
+  isArriving?: boolean;
+  isTopRow?: boolean;
 }
 
-export default function Plane({ x, y, planeNumber, isUpsideDown = false, color = '#dc2626' }: PlaneProps) {
+export default function Plane({ x, y, planeNumber, isUpsideDown = false, color = '#dc2626', isDeparting = false, isArriving = false, isTopRow = false }: PlaneProps) {
+  // Determine animation class
+  let animationClass = '';
+  if (isDeparting) {
+    animationClass = isTopRow ? 'plane-departing-up' : 'plane-departing-down';
+  } else if (isArriving) {
+    animationClass = isTopRow ? 'plane-arriving-down' : 'plane-arriving-up';
+  }
+
   return (
     <div 
-      className="absolute pointer-events-none flex flex-col items-center"
+      className={`absolute pointer-events-none flex flex-col items-center ${animationClass}`}
       style={{
         left: `${x}px`,
         top: `${y}px`,
@@ -61,7 +72,7 @@ export default function Plane({ x, y, planeNumber, isUpsideDown = false, color =
         />
       </svg>
       {planeNumber && (
-        <div className="text-white text-xs font-bold mt-1 text-center bg-black bg-opacity-50 px-2 py-1 rounded w-[150px]">
+        <div className={`text-white text-sm font-bold text-center bg-black bg-opacity-50 px-2 py-1 rounded w-[120px] ${isTopRow ? '-mt-12' : '-mt-5'}`}>
           {planeNumber}
         </div>
       )}

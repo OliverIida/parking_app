@@ -5,3 +5,65 @@
     background-color: #2a2a2a;
   }
 }
+
+@layer components {
+  .plane-departing-up {
+    animation: rollOutUp 2s ease-out forwards;
+  }
+
+  .plane-departing-down {
+    animation: rollOutDown 2s ease-out forwards;
+  }
+
+  .plane-arriving-down {
+    animation: rollInDown 2s ease-out forwards;
+  }
+
+  .plane-arriving-up {
+    animation: rollInUp 2s ease-out forwards;
+  }
+
+  @keyframes rollOutUp {
+    0% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, calc(-50% - 400px));
+      opacity: 0;
+    }
+  }
+
+  @keyframes rollOutDown {
+    0% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, calc(-50% + 400px));
+      opacity: 0;
+    }
+  }
+
+  @keyframes rollInDown {
+    0% {
+      transform: translate(-50%, calc(-50% - 400px));
+      opacity: 0;
+    }
+    100% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
+
+  @keyframes rollInUp {
+    0% {
+      transform: translate(-50%, calc(-50% + 400px));
+      opacity: 0;
+    }
+    100% {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
+}

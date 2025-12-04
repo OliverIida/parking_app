@@ -38,12 +38,23 @@ export function PlaneList() {
                 {planes.length === 0 ? (
                   <div className="text-green-600">No planes currently parking</div>
                 ) : (
-                  <div className="space-y-2">
-                    {planes.map((plane) => (
-                      <div key={plane} className="text-green-400">
-                        {plane}
+                  <div className="flex gap-4">
+                    <div className="space-y-2 flex-1">
+                      {planes.slice(0, 4).map((plane) => (
+                        <div key={plane} className="text-green-400">
+                          {plane}
+                        </div>
+                      ))}
+                    </div>
+                    {planes.length > 4 && (
+                      <div className="space-y-2 flex-1">
+                        {planes.slice(4, 8).map((plane) => (
+                          <div key={plane} className="text-green-400">
+                            {plane}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
